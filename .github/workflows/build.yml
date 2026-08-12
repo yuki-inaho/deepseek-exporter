@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    if: "contains(github.event.head_commit.message, 'chore: release')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: https://registry.npmjs.org/
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Test
+        run: pnpm run test
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Git commit
+        id: commit
+        run: |
+          git config --local user.email github-actions[bot]@users.noreply.github.com
+          git config --local user.name github-actions[bot]
+          git add dist
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "chore: ci build"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Git push
+        if: steps.commit.outputs.changed == 'true'
+        run: git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Log
+        if: steps.commit.outputs.changed != 'true'
+        run: echo Nothing to commit.
