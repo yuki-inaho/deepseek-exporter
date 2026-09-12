@@ -28,3 +28,11 @@ tsconfig.tsbuildinfo
 .serena
 temp/
 .playwright-cli/
+
+# Playwright / E2E artifacts (may contain cookies, traces and auth state)
+.features-gen/
+test-results/
+playwright-report/
+blob-report/
+e2e/.auth/
+*.har
