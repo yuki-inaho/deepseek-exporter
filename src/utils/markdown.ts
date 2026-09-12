@@ -5,8 +5,9 @@ import { gfmFromMarkdown, gfmToMarkdown } from 'mdast-util-gfm'
 import { toHast } from 'mdast-util-to-hast'
 import { toMarkdown as tm } from 'mdast-util-to-markdown'
 import { gfm } from 'micromark-extension-gfm'
-import type { Content, Parent, Root } from 'mdast'
+import type { Content, Image, Link, Parent, Root, Text } from 'mdast'
 import type { Node } from 'unist'
+import { safeImageUrl, safeLinkUrl } from './html'
 
 // ref: https://github.com/rxliuli/mdbook/blob/master/libs/markdown-util
 
@@ -38,6 +39,25 @@ export function toMarkdown(ast: Content | Root): string {
 export function toHtml(node: Root): string {
     const htmlTree = toHast(node)
     return htmlTree ? hastToHtml(sanitize(htmlTree)) : ''
+}
+
+/**
+ * Neutralize dangerous URLs in a Markdown tree in place. Links with a scheme
+ * outside the Markdown allowlist are unwrapped (the label text is kept) and
+ * images whose source is not a safe image URL are replaced with `[image]`,
+ * mirroring the HTML export policy.
+ */
+export function sanitizeMarkdownTree(tree: Root): void {
+    flatMap(tree, (node) => {
+        if (node.type === 'link' && !safeLinkUrl((node as Link).url)) {
+            return (node as Parent).children as Node[]
+        }
+        if (node.type === 'image' && !safeImageUrl((node as Image).url)) {
+            const placeholder: Text = { type: 'text', value: '[image]' }
+            return [placeholder]
+        }
+        return [node]
+    })
 }
 
 export function flatMap<T extends Node>(

@@ -6,7 +6,8 @@ import { checkIfConversationStarted } from '../page'
 import { transformContentReferences } from '../utils/citations'
 import { buildZipFileName, downloadFile, getFileNameWithFormat, prepareDownload } from '../utils/download'
 import { formatDurationSeconds } from '../utils/duration'
-import { fromMarkdown, toMarkdown } from '../utils/markdown'
+import { safeImageUrl } from '../utils/html'
+import { fromMarkdown, sanitizeMarkdownTree, toMarkdown } from '../utils/markdown'
 import { ScriptStorage } from '../utils/storage'
 import { fillTemplate, standardizeLineBreaks } from '../utils/text'
 import { dateStr, timestamp, unixTimestampToISOString } from '../utils/utils'
@@ -160,7 +161,9 @@ function normalizeAssistantMarkdown(input: string): string {
         .replace(/\\\[([\s\S]*?)\\\]/g, (_, formula: string) => protect(`$$${formula}$$`))
         .replace(/\\\(([^\n]*?)\\\)/g, (_, formula: string) => protect(`$${formula}$`))
 
-    let transformed = toMarkdown(fromMarkdown(input))
+    const tree = fromMarkdown(input)
+    sanitizeMarkdownTree(tree)
+    let transformed = toMarkdown(tree)
     transformed = transformed.replace(/╬DEEPSEEK(\d+)╬/g, (_, index: string) => protectedParts[+index] ?? '')
     return transformed
 }
@@ -211,7 +214,8 @@ function transformContent(
         case 'multimodal_text': {
             return content.parts?.map((part) => {
                 if (typeof part === 'string') return postProcess(part)
-                return `![image](${part.asset_pointer})`
+                const url = safeImageUrl(part.asset_pointer)
+                return url ? `![image](${url})` : '[image]'
             }).join('\n') || ''
         }
     }

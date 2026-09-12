@@ -33,9 +33,20 @@ function MenuInner({ container }: { container: HTMLDivElement }) {
     const metaList = useMemo(() => enableMeta ? exportMetaList : [], [enableMeta, exportMetaList])
 
     const onClickText = useCallback(() => exportToText(), [])
-    const onClickPng = useCallback(() => exportToPng(format), [format])
-    const onClickMarkdown = useCallback(() => exportToMarkdown(format, metaList), [format, metaList])
-    const onClickHtml = useCallback(() => exportToHtml(format, metaList), [format, metaList])
+    // Immediate exports close the menu first: the full-screen click-out
+    // backdrop would otherwise swallow the next click on the page.
+    const onClickPng = useCallback(() => {
+        setOpen(false)
+        return exportToPng(format)
+    }, [format])
+    const onClickMarkdown = useCallback(() => {
+        setOpen(false)
+        return exportToMarkdown(format, metaList)
+    }, [format, metaList])
+    const onClickHtml = useCallback(() => {
+        setOpen(false)
+        return exportToHtml(format, metaList)
+    }, [format, metaList])
     const openDialog = useCallback((dialog: 'settings' | 'json' | 'export') => {
         setOpen(false)
         if (dialog === 'settings') setSettingOpen(true)

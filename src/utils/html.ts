@@ -34,3 +34,26 @@ export function safeImageUrl(value: unknown): string {
         return ''
     }
 }
+
+/**
+ * Markdown link allowlist, aligned with the href protocols accepted by the
+ * HTML exporter's hast-util-sanitize schema: http(s), mailto, irc(s), xmpp and
+ * relative/anchor URLs. Dangerous schemes (javascript:, vbscript:, file:,
+ * data:) return ''.
+ */
+export function safeLinkUrl(value: unknown): string {
+    if (typeof value !== 'string') return ''
+    const url = value.trim()
+    if (!url) return ''
+    if (url.startsWith('#') || url.startsWith('/')) return url
+
+    try {
+        const parsed = new URL(url)
+        const allowed = ['http:', 'https:', 'mailto:', 'irc:', 'ircs:', 'xmpp:']
+        return allowed.includes(parsed.protocol) ? url : ''
+    }
+    catch {
+        // Relative path or query; no scheme to execute.
+        return url
+    }
+}

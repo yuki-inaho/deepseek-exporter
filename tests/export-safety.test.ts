@@ -225,3 +225,104 @@ describe('filenames', () => {
         expect(name).not.toContain('/')
     })
 })
+
+describe('markdown export safety', () => {
+    const classList = { contains: () => false }
+    const stubExportEnvironment = () => {
+        vi.stubGlobal('document', {
+            documentElement: { lang: 'en', classList, dataset: {} },
+            body: { classList, dataset: {} },
+        })
+        vi.stubGlobal('getComputedStyle', () => ({ colorScheme: 'light' }))
+        vi.stubGlobal('window', { matchMedia: () => ({ matches: false }) })
+    }
+    const assistantMessage = (conversation: ReturnType<typeof processConversation>) => {
+        const answer = conversation.conversationNodes.find(node => node.id === 'a2')?.message
+        if (!answer) throw new Error('Fixture answer is missing')
+        return answer
+    }
+
+    it('unwraps dangerous links in the Markdown export', () => {
+        stubExportEnvironment()
+        const conversation = processConversation(structuredClone(conversationFixture))
+        assistantMessage(conversation).content = {
+            content_type: 'text',
+            parts: ['[evil](javascript:alert(1)) and [ok](https://example.com/page)'],
+        }
+
+        const markdown = conversationToMarkdown(conversation)
+
+        expect(markdown).not.toContain('javascript:')
+        expect(markdown).toContain('evil')
+        expect(markdown).toContain('[ok](https://example.com/page)')
+    })
+
+    it('replaces unsafe image URLs with a placeholder', () => {
+        stubExportEnvironment()
+        const conversation = processConversation(structuredClone(conversationFixture))
+        assistantMessage(conversation).content = {
+            content_type: 'multimodal_text',
+            parts: [{
+                content_type: 'image_asset_pointer',
+                asset_pointer: 'data:text/html,<script>alert(1)</script>',
+                fovea: 0,
+                height: 1,
+                width: 1,
+                size_bytes: 1,
+            }],
+        }
+
+        const markdown = conversationToMarkdown(conversation)
+
+        expect(markdown).not.toContain('data:text/html')
+        expect(markdown).toContain('[image]')
+    })
+
+    it('keeps safe links and images in the Markdown export', () => {
+        stubExportEnvironment()
+        const conversation = processConversation(structuredClone(conversationFixture))
+        assistantMessage(conversation).content = {
+            content_type: 'multimodal_text',
+            parts: [
+                '![diagram](data:image/png;base64,AAAA)',
+                {
+                    content_type: 'image_asset_pointer',
+                    asset_pointer: 'data:image/png;base64,BBBB',
+                    fovea: 0,
+                    height: 1,
+                    width: 1,
+                    size_bytes: 1,
+                },
+            ],
+        }
+
+        const markdown = conversationToMarkdown(conversation)
+
+        expect(markdown).toContain('data:image/png;base64,AAAA')
+        expect(markdown).toContain('data:image/png;base64,BBBB')
+    })
+
+    it('drops dangerous citation URLs in the Markdown export', () => {
+        stubExportEnvironment()
+        const apiConversation = structuredClone(conversationFixture)
+        const answer = apiConversation.chat_messages.find(message => message.message_id === 'a2')
+        if (!answer) throw new Error('Fixture answer is missing')
+        answer.fragments = [{
+            type: 'SEARCH',
+            results: [{
+                cite_index: 1,
+                title: 'Evil Source',
+                url: 'javascript:alert(1)',
+                snippet: 'x',
+            }],
+        }, {
+            type: 'RESPONSE',
+            content: 'See the source[citation:1].',
+        }]
+
+        const markdown = conversationToMarkdown(processConversation(apiConversation))
+
+        expect(markdown).not.toContain('javascript:')
+        expect(markdown).toContain('Evil Source')
+    })
+})

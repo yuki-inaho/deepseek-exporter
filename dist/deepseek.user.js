@@ -6724,6 +6724,25 @@ ${items}
 			return "";
 		}
 	}
+	function safeLinkUrl(value) {
+		if (typeof value !== "string") return "";
+		const url = value.trim();
+		if (!url) return "";
+		if (url.startsWith("#") || url.startsWith("/")) return url;
+		try {
+			const parsed = new URL(url);
+			return [
+				"http:",
+				"https:",
+				"mailto:",
+				"irc:",
+				"ircs:",
+				"xmpp:"
+			].includes(parsed.protocol) ? url : "";
+		} catch {
+			return url;
+		}
+	}
 	var htmlVoidElements = [
 		"area",
 		"base",
@@ -17448,6 +17467,16 @@ ${items}
 		const htmlTree = toHast(node);
 		return htmlTree ? toHtml$1(sanitize$1(htmlTree)) : "";
 	}
+	function sanitizeMarkdownTree(tree) {
+		flatMap(tree, (node) => {
+			if (node.type === "link" && !safeLinkUrl(node.url)) return node.children;
+			if (node.type === "image" && !safeImageUrl(node.url)) return [{
+				type: "text",
+				value: "[image]"
+			}];
+			return [node];
+		});
+	}
 	function flatMap(tree, fn) {
 		function transform(node, i, parent) {
 			if ("children" in node) {
@@ -18074,7 +18103,9 @@ ${items}
 		};
 		input = input.replace(/(?:^|\n)(?:```|~~~)[^\n]*\n[\s\S]*?\n(?:```|~~~)(?=\n|$)/g, protect);
 		input = input.replace(/\\\[([\s\S]*?)\\\]/g, (_, formula) => protect(`$$${formula}$$`)).replace(/\\\(([^\n]*?)\\\)/g, (_, formula) => protect(`$${formula}$`));
-		let transformed = toMarkdown(fromMarkdown(input));
+		const tree = fromMarkdown(input);
+		sanitizeMarkdownTree(tree);
+		let transformed = toMarkdown(tree);
 		transformed = transformed.replace(/╬DEEPSEEK(\d+)╬/g, (_, index) => protectedParts[+index] ?? "");
 		return transformed;
 	}
@@ -18100,7 +18131,8 @@ ${items}
 			case "text": return postProcess(content.parts?.join("\n") || "");
 			case "multimodal_text": return content.parts?.map((part) => {
 				if (typeof part === "string") return postProcess(part);
-				return `![image](${part.asset_pointer})`;
+				const url = safeImageUrl(part.asset_pointer);
+				return url ? `![image](${url})` : "[image]";
 			}).join("\n") || "";
 		}
 	}
@@ -21540,9 +21572,18 @@ ${items}
 		const { format, enableMeta, exportMetaList } = useSettingContext();
 		const metaList = T$1(() => enableMeta ? exportMetaList : [], [enableMeta, exportMetaList]);
 		const onClickText = q$1(() => exportToText(), []);
-		const onClickPng = q$1(() => exportToPng(format), [format]);
-		const onClickMarkdown = q$1(() => exportToMarkdown(format, metaList), [format, metaList]);
-		const onClickHtml = q$1(() => exportToHtml(format, metaList), [format, metaList]);
+		const onClickPng = q$1(() => {
+			setOpen(false);
+			return exportToPng(format);
+		}, [format]);
+		const onClickMarkdown = q$1(() => {
+			setOpen(false);
+			return exportToMarkdown(format, metaList);
+		}, [format, metaList]);
+		const onClickHtml = q$1(() => {
+			setOpen(false);
+			return exportToHtml(format, metaList);
+		}, [format, metaList]);
 		const openDialog = q$1((dialog) => {
 			setOpen(false);
 			if (dialog === "settings") setSettingOpen(true);
