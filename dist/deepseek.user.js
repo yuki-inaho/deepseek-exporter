@@ -3,7 +3,7 @@
 // @name:zh-CN         DeepSeek Exporter
 // @name:zh-TW         DeepSeek Exporter
 // @namespace          yuki-inaho
-// @version            0.1.1
+// @version            0.2.0
 // @author             yuki-inaho
 // @description        Export DeepSeek conversations with one click — including reasoning and sources.
 // @description:zh-CN  一键导出 DeepSeek 对话，支持深度思考与搜索来源
@@ -401,7 +401,7 @@
 	var package_default = {
 		name: "@pionxzh/deepseek-exporter",
 		type: "module",
-		version: "0.1.1",
+		version: "0.2.0",
 		"private": true,
 		packageManager: "pnpm@11.21.0",
 		title: "DeepSeek Exporter",
