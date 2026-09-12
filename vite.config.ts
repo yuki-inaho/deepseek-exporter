@@ -43,7 +43,9 @@ export default defineConfig({
                     // Pin exact versions and attach Subresource Integrity hashes to
                     // the @require URLs so a compromised/poisoned CDN response cannot
                     // execute arbitrary code in the chat.deepseek.com page context.
-                    // Tampermonkey/Violentmonkey verify the `#sha384=` fragment.
+                    // Tampermonkey validates `#sha384=` (SHA-384 via window.crypto,
+                    // base64 accepted); managers without SRI support (e.g.
+                    // Violentmonkey) ignore the fragment and download normally.
                     // JSZip 3.10.1's setImmediate polyfill hangs in a granted
                     // Tampermonkey sandbox. Keep 3.9.1 pinned until upstream
                     // fixes https://github.com/Stuk/jszip/issues/934.
