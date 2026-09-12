@@ -1,6 +1,6 @@
 import preact from '@preact/preset-vite'
 import { defineConfig } from 'vite'
-import monkey, { cdn } from 'vite-plugin-monkey'
+import monkey from 'vite-plugin-monkey'
 import packageJson from './package.json' with { type: 'json' }
 
 // https://vitejs.dev/config/
@@ -40,11 +40,15 @@ export default defineConfig({
             build: {
                 fileName: 'deepseek.user.js',
                 externalGlobals: [
+                    // Pin exact versions and attach Subresource Integrity hashes to
+                    // the @require URLs so a compromised/poisoned CDN response cannot
+                    // execute arbitrary code in the chat.deepseek.com page context.
+                    // Tampermonkey/Violentmonkey verify the `#sha384=` fragment.
                     // JSZip 3.10.1's setImmediate polyfill hangs in a granted
                     // Tampermonkey sandbox. Keep 3.9.1 pinned until upstream
                     // fixes https://github.com/Stuk/jszip/issues/934.
-                    ['jszip', cdn.jsdelivr('JSZip', 'dist/jszip.min.js')],
-                    ['html2canvas', cdn.jsdelivr('html2canvas', 'dist/html2canvas.min.js')],
+                    ['jszip', ['JSZip', 'https://cdn.jsdelivr.net/npm/jszip@3.9.1/dist/jszip.min.js#sha384=QC9YCuBRpz3M81TBQGFGTrpTo2B2igltSqvOvHmbG3mb9X3Ftljj+WWRfI6VojME']],
+                    ['html2canvas', ['html2canvas', 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js#sha384=ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H']],
                 ],
             },
             server: {

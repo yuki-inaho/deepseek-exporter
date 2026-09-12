@@ -194,16 +194,18 @@ export function conversationToHtml(conversation: ConversationResult, avatar: str
 </details>`
         : ''
 
+    // Use function replacements so values containing `$` are inserted verbatim
+    // (string replacements interpret `$$`, `$&`, etc.).
     const html = templateHtml
-        .replaceAll('{{title}}', escapeHtml(title))
-        .replaceAll('{{date}}', escapeHtml(date))
-        .replaceAll('{{time}}', escapeHtml(time))
-        .replaceAll('{{source}}', escapeHtml(source))
-        .replaceAll('{{lang}}', escapeHtml(lang))
-        .replaceAll('{{theme}}', escapeHtml(theme))
-        .replaceAll('{{avatar}}', escapeCssString(safeImageUrl(avatar)))
-        .replaceAll('{{details}}', detailsHtml)
-        .replaceAll('{{content}}', conversationHtml)
+        .replaceAll('{{title}}', () => escapeHtml(title))
+        .replaceAll('{{date}}', () => escapeHtml(date))
+        .replaceAll('{{time}}', () => escapeHtml(time))
+        .replaceAll('{{source}}', () => escapeHtml(source))
+        .replaceAll('{{lang}}', () => escapeHtml(lang))
+        .replaceAll('{{theme}}', () => escapeHtml(theme))
+        .replaceAll('{{avatar}}', () => escapeCssString(safeImageUrl(avatar)))
+        .replaceAll('{{details}}', () => detailsHtml)
+        .replaceAll('{{content}}', () => conversationHtml)
     return html
 }
 
