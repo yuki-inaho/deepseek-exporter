@@ -40,7 +40,8 @@ export function transformContentReferences(
         if (!matchedText) continue
 
         const replacement = formatInlineReference(ref, outputType, inlineReferenceMode)
-        output = output.replaceAll(matchedText, replacement)
+        // Function form so `$&`-style patterns in API-supplied labels are inserted verbatim.
+        output = output.replaceAll(matchedText, () => replacement)
     }
 
     output = output.replace(CitationMarkerRegex, '')

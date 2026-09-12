@@ -5,7 +5,7 @@ import { gfmFromMarkdown, gfmToMarkdown } from 'mdast-util-gfm'
 import { toHast } from 'mdast-util-to-hast'
 import { toMarkdown as tm } from 'mdast-util-to-markdown'
 import { gfm } from 'micromark-extension-gfm'
-import type { Content, Image, Link, Parent, Root, Text } from 'mdast'
+import type { Content, Definition, Image, Link, Parent, Root, Text } from 'mdast'
 import type { Node } from 'unist'
 import { safeImageUrl, safeLinkUrl } from './html'
 
@@ -43,9 +43,10 @@ export function toHtml(node: Root): string {
 
 /**
  * Neutralize dangerous URLs in a Markdown tree in place. Links with a scheme
- * outside the Markdown allowlist are unwrapped (the label text is kept) and
+ * outside the Markdown allowlist are unwrapped (the label text is kept),
  * images whose source is not a safe image URL are replaced with `[image]`,
- * mirroring the HTML export policy.
+ * and definitions pointing at dangerous URLs are removed so `[text][id]`
+ * references cannot resolve to them. Mirrors the HTML export policy.
  */
 export function sanitizeMarkdownTree(tree: Root): void {
     flatMap(tree, (node) => {
@@ -55,6 +56,9 @@ export function sanitizeMarkdownTree(tree: Root): void {
         if (node.type === 'image' && !safeImageUrl((node as Image).url)) {
             const placeholder: Text = { type: 'text', value: '[image]' }
             return [placeholder]
+        }
+        if (node.type === 'definition' && !safeLinkUrl((node as Definition).url)) {
+            return []
         }
         return [node]
     })

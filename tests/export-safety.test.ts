@@ -325,4 +325,59 @@ describe('markdown export safety', () => {
         expect(markdown).not.toContain('javascript:')
         expect(markdown).toContain('Evil Source')
     })
+
+    it('keeps citation labels containing $ replacement patterns literal', () => {
+        stubExportEnvironment()
+        const apiConversation = structuredClone(conversationFixture)
+        const answer = apiConversation.chat_messages.find(message => message.message_id === 'a2')
+        if (!answer) throw new Error('Fixture answer is missing')
+        answer.fragments = [{
+            type: 'SEARCH',
+            results: [{
+                cite_index: 1,
+                title: 'Ref $& title',
+                url: 'https://example.com/ref',
+                snippet: 'x',
+            }],
+        }, {
+            type: 'RESPONSE',
+            content: 'See the source[citation:1].',
+        }]
+
+        const markdown = conversationToMarkdown(processConversation(apiConversation))
+
+        expect(markdown).toContain('Ref $& title')
+        expect(markdown).not.toContain('[citation:1]')
+    })
+
+    it('sanitizes dangerous links inside thinking blocks', () => {
+        stubExportEnvironment()
+        const conversation = processConversation(structuredClone(conversationFixture))
+        const node = conversation.conversationNodes.find(item => item.id === 'a2')
+        if (!node) throw new Error('Fixture answer is missing')
+        node.thinking = {
+            thoughts: [{ summary: 'summary', content: '[evil](javascript:alert(1)) and [ok](https://example.com/ok)' }],
+            activities: [],
+        }
+
+        const markdown = conversationToMarkdown(conversation)
+
+        expect(markdown).not.toContain('javascript:')
+        expect(markdown).toContain('evil')
+        expect(markdown).toContain('https://example.com/ok')
+    })
+
+    it('removes dangerous link definitions instead of leaving them in the export', () => {
+        stubExportEnvironment()
+        const conversation = processConversation(structuredClone(conversationFixture))
+        assistantMessage(conversation).content = {
+            content_type: 'text',
+            parts: ['see [ref][d]\n\n[d]: javascript:alert(1)'],
+        }
+
+        const markdown = conversationToMarkdown(conversation)
+
+        expect(markdown).not.toContain('javascript:')
+        expect(markdown).toContain('ref')
+    })
 })

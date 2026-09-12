@@ -243,5 +243,11 @@ function formatThinkingMarkdown(thinking: ThinkingContent): string {
 
     if (!body) return ''
 
-    return `<details>\n<summary>${durationLabel}</summary>\n\n${body}\n\n</details>\n\n`
+    // Thinking is model output inserted outside the per-message post-steps;
+    // sanitize it here so dangerous links cannot bypass the Markdown policy.
+    const tree = fromMarkdown(body)
+    sanitizeMarkdownTree(tree)
+    const sanitized = toMarkdown(tree)
+
+    return `<details>\n<summary>${durationLabel}</summary>\n\n${sanitized}\n\n</details>\n\n`
 }

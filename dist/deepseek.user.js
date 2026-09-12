@@ -425,6 +425,8 @@
 			"build": "vite build",
 			"test": "tsc --noEmit && vitest run",
 			"test:types": "tsc --noEmit",
+			"test:e2e": "bddgen && playwright test",
+			"test:e2e:headed": "bddgen && playwright test --headed",
 			"lint": "eslint .",
 			"lint:fix": "eslint . --fix",
 			"prepare": "husky"
@@ -454,6 +456,7 @@
 			"@commitlint/config-conventional": "^21.2.0",
 			"@eslint-react/eslint-plugin": "^1.53.1",
 			"@pionxzh/eslint-config": "^2.0.2",
+			"@playwright/test": "1.59.1",
 			"@preact/preset-vite": "^2.10.6",
 			"@types/mdast": "^4.0.4",
 			"@types/node": "^26.2.0",
@@ -464,6 +467,7 @@
 			"eslint-plugin-react-refresh": "^0.4.26",
 			"husky": "^9.1.7",
 			"lint-staged": "^17.3.0",
+			"playwright-bdd": "^9.2.1",
 			"postcss": "^8.5.26",
 			"tailwindcss": "^3.4.19",
 			"typescript": "^5.9.3",
@@ -6306,7 +6310,7 @@
 			const matchedText = normalizeCitationText(ref.matched_text);
 			if (!matchedText) continue;
 			const replacement = formatInlineReference(ref, outputType, inlineReferenceMode);
-			output = output.replaceAll(matchedText, replacement);
+			output = output.replaceAll(matchedText, () => replacement);
 		}
 		output = output.replace(CitationMarkerRegex, "");
 		if (options.includeSourceList !== false) {
@@ -17474,6 +17478,7 @@ ${items}
 				type: "text",
 				value: "[image]"
 			}];
+			if (node.type === "definition" && !safeLinkUrl(node.url)) return [];
 			return [node];
 		});
 	}
@@ -18145,7 +18150,9 @@ ${items}
 		if (thoughts) parts.push(thoughts);
 		const body = parts.join("\n\n");
 		if (!body) return "";
-		return `<details>\n<summary>${durationLabel}</summary>\n\n${body}\n\n</details>\n\n`;
+		const tree = fromMarkdown(body);
+		sanitizeMarkdownTree(tree);
+		return `<details>\n<summary>${durationLabel}</summary>\n\n${toMarkdown(tree)}\n\n</details>\n\n`;
 	}
 	async function copyToClipboard(text) {
 		try {
