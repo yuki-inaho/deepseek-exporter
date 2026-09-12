@@ -10,15 +10,15 @@
   "description": "Export DeepSeek conversations with one click — including reasoning and sources.",
   "description:zh-CN": "一键导出 DeepSeek 对话，支持深度思考与搜索来源",
   "description:zh-TW": "一鍵匯出 DeepSeek 對話，支援深度思考與搜尋來源",
-  "author": "pionxzh",
+  "author": "yuki-inaho",
   "license": "MIT",
-  "homepage": "https://github.com/pionxzh/deepseek-exporter#readme",
+  "homepage": "https://github.com/yuki-inaho/deepseek-exporter#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pionxzh/deepseek-exporter.git"
+    "url": "git+https://github.com/yuki-inaho/deepseek-exporter.git"
   },
   "bugs": {
-    "url": "https://github.com/pionxzh/deepseek-exporter/issues"
+    "url": "https://github.com/yuki-inaho/deepseek-exporter/issues"
   },
   "engines": {
     "node": ">=22.13.0"

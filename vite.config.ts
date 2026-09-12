@@ -26,8 +26,8 @@ export default defineConfig({
                     'zh-TW': packageJson['description:zh-TW'],
                 },
                 'license': packageJson.license,
-                'homepageURL': 'https://github.com/pionxzh/deepseek-exporter',
-                'supportURL': 'https://github.com/pionxzh/deepseek-exporter/issues',
+                'homepageURL': 'https://github.com/yuki-inaho/deepseek-exporter',
+                'supportURL': 'https://github.com/yuki-inaho/deepseek-exporter/issues',
                 'match': [
                     'https://chat.deepseek.com/*',
                 ],

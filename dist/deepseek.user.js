@@ -2,18 +2,18 @@
 // @name               DeepSeek Exporter
 // @name:zh-CN         DeepSeek Exporter
 // @name:zh-TW         DeepSeek Exporter
-// @namespace          pionxzh
+// @namespace          yuki-inaho
 // @version            0.1.1
-// @author             pionxzh
+// @author             yuki-inaho
 // @description        Export DeepSeek conversations with one click — including reasoning and sources.
 // @description:zh-CN  一键导出 DeepSeek 对话，支持深度思考与搜索来源
 // @description:zh-TW  一鍵匯出 DeepSeek 對話，支援深度思考與搜尋來源
 // @license            MIT
 // @icon               https://chat.deepseek.com/favicon.svg
-// @homepage           https://github.com/pionxzh/deepseek-exporter#readme
-// @homepageURL        https://github.com/pionxzh/deepseek-exporter
-// @source             https://github.com/pionxzh/deepseek-exporter.git
-// @supportURL         https://github.com/pionxzh/deepseek-exporter/issues
+// @homepage           https://github.com/yuki-inaho/deepseek-exporter#readme
+// @homepageURL        https://github.com/yuki-inaho/deepseek-exporter
+// @source             https://github.com/yuki-inaho/deepseek-exporter.git
+// @supportURL         https://github.com/yuki-inaho/deepseek-exporter/issues
 // @match              https://chat.deepseek.com/*
 // @exclude            https://chat.deepseek.com/sign_in*
 // @require            https://cdn.jsdelivr.net/npm/jszip@3.9.1/dist/jszip.min.js#sha384=QC9YCuBRpz3M81TBQGFGTrpTo2B2igltSqvOvHmbG3mb9X3Ftljj+WWRfI6VojME
@@ -410,14 +410,14 @@
 		description: "Export DeepSeek conversations with one click — including reasoning and sources.",
 		"description:zh-CN": "一键导出 DeepSeek 对话，支持深度思考与搜索来源",
 		"description:zh-TW": "一鍵匯出 DeepSeek 對話，支援深度思考與搜尋來源",
-		author: "pionxzh",
+		author: "yuki-inaho",
 		license: "MIT",
-		homepage: "https://github.com/pionxzh/deepseek-exporter#readme",
+		homepage: "https://github.com/yuki-inaho/deepseek-exporter#readme",
 		repository: {
 			"type": "git",
-			"url": "git+https://github.com/pionxzh/deepseek-exporter.git"
+			"url": "git+https://github.com/yuki-inaho/deepseek-exporter.git"
 		},
-		bugs: { "url": "https://github.com/pionxzh/deepseek-exporter/issues" },
+		bugs: { "url": "https://github.com/yuki-inaho/deepseek-exporter/issues" },
 		engines: { "node": ">=22.13.0" },
 		commitlint: { "extends": ["@commitlint/config-conventional"] },
 		scripts: {
