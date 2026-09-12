@@ -8,14 +8,11 @@
 
 [![license][license-image]][license-url]
 [![release][release-image]][release-url]
-[![GreasyFork][greasyfork-image]][greasyfork-url]
 
-[license-image]: https://img.shields.io/github/license/pionxzh/deepseek-exporter?color=red
-[license-url]: https://github.com/pionxzh/deepseek-exporter/blob/main/LICENSE
-[release-image]: https://img.shields.io/github/v/release/pionxzh/deepseek-exporter?color=blue
-[release-url]: https://github.com/pionxzh/deepseek-exporter/releases/latest
-[greasyfork-image]: https://img.shields.io/static/v1?label=%20&message=GreasyFork&style=flat-square&labelColor=7B0000&color=960000&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3ggEBCQHM3fXsAAAAVdJREFUOMudkz2qwkAUhc/goBaGJBgUtBCZyj0ILkpwAW7Bws4yO3AHLiCtEFD8KVREkoiFxZzX5A2KGfN4F04zMN+ce+5c4LMUgDmANYBnrnV+plBSi+FwyHq9TgA2LQpvCiEiABwMBtzv95RSfoNEHy8DYBzHrNVqVEr9BWKcqNFoxF6vx3a7zc1mYyC73a4MogBg7vs+z+czO50OW60Wt9stK5UKp9Mpj8cjq9WqDTBHnjAdxzGQZrPJw+HA31oulzbAWgLoA0CWZVBKIY5jzGYzdLtdE9DlcrFNrY98zobqOA6TJKHW2jg4nU5sNBpFDp6mhVe5rsvVasUwDHm9Xqm15u12o+/7Hy0gD8KatOd5vN/v1FozTVN6nkchxFuI6hsAAIMg4OPxMJCXdtTbR7JJCMEgCJhlGUlyPB4XfumozInrupxMJpRSRtZlKoNYl+m/6/wDuWAjtPfsQuwAAAAASUVORK5CYII=
-[greasyfork-url]: https://greasyfork.org/scripts/591297-deepseek-exporter
+[license-image]: https://img.shields.io/github/license/yuki-inaho/deepseek-exporter?color=red
+[license-url]: https://github.com/yuki-inaho/deepseek-exporter/blob/main/LICENSE
+[release-image]: https://img.shields.io/github/v/release/yuki-inaho/deepseek-exporter?color=blue
+[release-url]: https://github.com/yuki-inaho/deepseek-exporter/releases/latest
 
 [English](./README.md) &nbsp;&nbsp;|&nbsp;&nbsp; 简体中文 &nbsp;&nbsp;|&nbsp;&nbsp; [繁體中文](./README_zh-Hant.md)
 
@@ -44,16 +41,18 @@
 [link-firefox]: https://addons.mozilla.org/firefox/addon/tampermonkey 'Firefox Add-ons'
 [link-edge]: https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd 'Edge Add-ons'
 
-**2.** 从 GreasyFork 或 GitHub 安装脚本，然后打开 [chat.deepseek.com](https://chat.deepseek.com/)，导出菜单就会出现在页面上。
+**2.** 从本仓库安装最新构建的用户脚本，然后打开 [chat.deepseek.com](https://chat.deepseek.com/)，导出菜单就会出现在页面上。
 
-| GreasyFork | GitHub |
-| :---: | :---: |
-| [![安装][install-image]](https://greasyfork.org/scripts/591297-deepseek-exporter) | [![安装][install-image]](https://raw.githubusercontent.com/pionxzh/deepseek-exporter/main/dist/deepseek.user.js) |
+[![安装][install-image]](https://raw.githubusercontent.com/yuki-inaho/deepseek-exporter/main/dist/deepseek.user.js)
 
 [install-image]: https://img.shields.io/badge/-%E5%AE%89%E8%A3%85-blue
 
 > [!TIP]
 > Chrome 用户请确认已为 Tampermonkey 启用 [`允许用户脚本`](https://www.tampermonkey.net/faq.php?q=Q209)。
+
+## 🔐 加固分支
+
+本仓库是 [pionxzh/deepseek-exporter](https://github.com/pionxzh/deepseek-exporter) 的分支。在上游基础上，对 CDN 依赖（`jszip`、`html2canvas`）固定版本并附加子资源完整性（SRI）校验，为导出 HTML 中的 CDN 资源添加 SRI，并让 Markdown 导出的链接与图片采用与 HTML 导出相同的净化策略。
 
 ## 🔒 隐私
 
@@ -70,3 +69,5 @@
 ## 📄 许可证
 
 [MIT](./LICENSE)
+
+基于 [pionxzh/deepseek-exporter](https://github.com/pionxzh/deepseek-exporter)（MIT）。

@@ -8,14 +8,11 @@ Export your <a href="https://chat.deepseek.com/">DeepSeek</a> conversations with
 
 [![license][license-image]][license-url]
 [![release][release-image]][release-url]
-[![GreasyFork][greasyfork-image]][greasyfork-url]
 
-[license-image]: https://img.shields.io/github/license/pionxzh/deepseek-exporter?color=red
-[license-url]: https://github.com/pionxzh/deepseek-exporter/blob/main/LICENSE
-[release-image]: https://img.shields.io/github/v/release/pionxzh/deepseek-exporter?color=blue
-[release-url]: https://github.com/pionxzh/deepseek-exporter/releases/latest
-[greasyfork-image]: https://img.shields.io/static/v1?label=%20&message=GreasyFork&style=flat-square&labelColor=7B0000&color=960000&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3ggEBCQHM3fXsAAAAVdJREFUOMudkz2qwkAUhc/goBaGJBgUtBCZyj0ILkpwAW7Bws4yO3AHLiCtEFD8KVREkoiFxZzX5A2KGfN4F04zMN+ce+5c4LMUgDmANYBnrnV+plBSi+FwyHq9TgA2LQpvCiEiABwMBtzv95RSfoNEHy8DYBzHrNVqVEr9BWKcqNFoxF6vx3a7zc1mYyC73a4MogBg7vs+z+czO50OW60Wt9stK5UKp9Mpj8cjq9WqDTBHnjAdxzGQZrPJw+HA31oulzbAWgLoA0CWZVBKIY5jzGYzdLtdE9DlcrFNrY98zobqOA6TJKHW2jg4nU5sNBpFDp6mhVe5rsvVasUwDHm9Xqm15u12o+/7Hy0gD8KatOd5vN/v1FozTVN6nkchxFuI6hsAAIMg4OPxMJCXdtTbR7JJCMEgCJhlGUlyPB4XfumozInrupxMJpRSRtZlKoNYl+m/6/wDuWAjtPfsQuwAAAAASUVORK5CYII=
-[greasyfork-url]: https://greasyfork.org/scripts/591297-deepseek-exporter
+[license-image]: https://img.shields.io/github/license/yuki-inaho/deepseek-exporter?color=red
+[license-url]: https://github.com/yuki-inaho/deepseek-exporter/blob/main/LICENSE
+[release-image]: https://img.shields.io/github/v/release/yuki-inaho/deepseek-exporter?color=blue
+[release-url]: https://github.com/yuki-inaho/deepseek-exporter/releases/latest
 
 English &nbsp;&nbsp;|&nbsp;&nbsp; [简体中文](./README_zh-Hans.md) &nbsp;&nbsp;|&nbsp;&nbsp; [繁體中文](./README_zh-Hant.md)
 
@@ -44,16 +41,18 @@ English &nbsp;&nbsp;|&nbsp;&nbsp; [简体中文](./README_zh-Hans.md) &nbsp;&nbs
 [link-firefox]: https://addons.mozilla.org/firefox/addon/tampermonkey 'Firefox Add-ons'
 [link-edge]: https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd 'Edge Add-ons'
 
-**2.** Install the script from GreasyFork or GitHub, then open [chat.deepseek.com](https://chat.deepseek.com/) — the export menu appears on the page.
+**2.** Install the built userscript from this repository, then open [chat.deepseek.com](https://chat.deepseek.com/) — the export menu appears on the page.
 
-| GreasyFork | GitHub |
-| :---: | :---: |
-| [![Install][install-image]](https://greasyfork.org/scripts/591297-deepseek-exporter) | [![Install][install-image]](https://raw.githubusercontent.com/pionxzh/deepseek-exporter/main/dist/deepseek.user.js) |
+[![Install][install-image]](https://raw.githubusercontent.com/yuki-inaho/deepseek-exporter/main/dist/deepseek.user.js)
 
 [install-image]: https://img.shields.io/badge/-Install-blue
 
 > [!TIP]
 > On Chrome, make sure [`Allow User Scripts` is enabled](https://www.tampermonkey.net/faq.php?q=Q209) for Tampermonkey.
+
+## 🔐 Hardened fork
+
+This repository is a fork of [pionxzh/deepseek-exporter](https://github.com/pionxzh/deepseek-exporter). On top of upstream it pins the CDN dependencies (`jszip`, `html2canvas`) with Subresource Integrity, adds SRI to the CDN assets of exported HTML, and sanitizes links and images in Markdown exports to match the HTML export policy.
 
 ## 🔒 Privacy
 
@@ -70,3 +69,5 @@ Contributions are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md) to get st
 ## 📄 License
 
 [MIT](./LICENSE)
+
+Based on [pionxzh/deepseek-exporter](https://github.com/pionxzh/deepseek-exporter) (MIT).
