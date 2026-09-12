@@ -1,8 +1,9 @@
 import JSZip from 'jszip'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { processConversation } from '../src/api'
 import { conversationToHtml } from '../src/exporter/html'
 import { conversationToMarkdown, createMarkdownArchive } from '../src/exporter/markdown'
+import i18n from '../src/i18n'
 import { getFileNameWithFormat } from '../src/utils/download'
 import { escapeHtml, safeImageUrl } from '../src/utils/html'
 import { parseConversationExport } from '../src/utils/import'
@@ -17,6 +18,12 @@ vi.mock('vite-plugin-monkey/dist/client', () => ({
 }))
 
 const conversationFixture = fixture as ApiConversationWithId
+
+beforeAll(async () => {
+    // The extension locale follows the host machine; pin it so assertions do
+    // not depend on the developer's system language.
+    await i18n.changeLanguage('en-US')
+})
 
 afterEach(() => {
     vi.unstubAllGlobals()
@@ -73,6 +80,24 @@ describe('standalone HTML safety', () => {
 
         const dataUrlHtml = conversationToHtml(conversation, 'data:image/svg+xml,</style><script>alert(1)</script>')
         expect(dataUrlHtml).not.toContain('</style><script>alert(1)</script>')
+    })
+
+    it('inserts titles and metadata verbatim without re-interpreting placeholders', () => {
+        const classList = { contains: () => false }
+        vi.stubGlobal('document', {
+            documentElement: { lang: 'en', classList, dataset: {} },
+            body: { classList, dataset: {} },
+        })
+        vi.stubGlobal('getComputedStyle', () => ({ colorScheme: 'light' }))
+        vi.stubGlobal('window', { matchMedia: () => ({ matches: false }) })
+
+        const conversation = processConversation(structuredClone(conversationFixture))
+        conversation.title = 'a$&b {date} c {{source}} d'
+        const html = conversationToHtml(conversation, '', [
+            { name: 'meta', value: '{title}' },
+        ])
+
+        expect(html).toContain('a$&amp;b {date} c {{source}} d')
     })
 
     it('preserves blockquotes and LaTeX when the same answer contains a code fence', () => {

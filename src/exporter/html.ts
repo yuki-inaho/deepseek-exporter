@@ -10,7 +10,7 @@ import { formatDurationSeconds } from '../utils/duration'
 import { escapeCssString, escapeHtml, safeImageUrl } from '../utils/html'
 import { fromMarkdown, toHtml } from '../utils/markdown'
 import { ScriptStorage } from '../utils/storage'
-import { standardizeLineBreaks } from '../utils/text'
+import { fillTemplate, standardizeLineBreaks } from '../utils/text'
 import { dateStr, getColorScheme, timestamp, unixTimestampToISOString } from '../utils/utils'
 import type { ApiConversationWithId, ConversationNodeMessage, ConversationResult, ThinkingContent } from '../api'
 import type { ExportMeta } from '../ui/SettingContext'
@@ -172,15 +172,16 @@ export function conversationToHtml(conversation: ConversationResult, avatar: str
     const _metaList = metaList
         ?.filter(x => !!x.name)
         .map(({ name, value }) => {
-            const val = value
-                .replaceAll('{title}', title)
-                .replaceAll('{date}', date)
-                .replaceAll('{timestamp}', timestamp())
-                .replaceAll('{source}', source)
-                .replaceAll('{model}', model)
-                .replaceAll('{model_name}', modelSlug)
-                .replaceAll('{create_time}', unixTimestampToISOString(createTime))
-                .replaceAll('{update_time}', unixTimestampToISOString(updateTime))
+            const val = fillTemplate(value, {
+                title,
+                date,
+                timestamp: timestamp(),
+                source,
+                model,
+                model_name: modelSlug,
+                create_time: unixTimestampToISOString(createTime),
+                update_time: unixTimestampToISOString(updateTime),
+            })
 
             return [name, val] as const
         })
@@ -194,18 +195,19 @@ export function conversationToHtml(conversation: ConversationResult, avatar: str
 </details>`
         : ''
 
-    // Use function replacements so values containing `$` are inserted verbatim
-    // (string replacements interpret `$$`, `$&`, etc.).
-    const html = templateHtml
-        .replaceAll('{{title}}', () => escapeHtml(title))
-        .replaceAll('{{date}}', () => escapeHtml(date))
-        .replaceAll('{{time}}', () => escapeHtml(time))
-        .replaceAll('{{source}}', () => escapeHtml(source))
-        .replaceAll('{{lang}}', () => escapeHtml(lang))
-        .replaceAll('{{theme}}', () => escapeHtml(theme))
-        .replaceAll('{{avatar}}', () => escapeCssString(safeImageUrl(avatar)))
-        .replaceAll('{{details}}', () => detailsHtml)
-        .replaceAll('{{content}}', () => conversationHtml)
+    // Single-pass placeholders so values containing `$&`-style patterns or
+    // placeholder-looking text (`{{date}}`) are inserted verbatim.
+    const html = fillTemplate(templateHtml, {
+        title: escapeHtml(title),
+        date: escapeHtml(date),
+        time: escapeHtml(time),
+        source: escapeHtml(source),
+        lang: escapeHtml(lang),
+        theme: escapeHtml(theme),
+        avatar: escapeCssString(safeImageUrl(avatar)),
+        details: detailsHtml,
+        content: conversationHtml,
+    }, { doubleBraces: true })
     return html
 }
 

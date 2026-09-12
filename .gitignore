@@ -27,3 +27,4 @@ tsconfig.tsbuildinfo
 .claude
 .serena
 temp/
+.playwright-cli/

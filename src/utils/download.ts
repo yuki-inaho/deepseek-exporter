@@ -1,5 +1,6 @@
 import sanitize from 'sanitize-filename'
 import { getPageTitle } from '../page'
+import { fillTemplate } from './text'
 import { dateStr, timestamp, unixTimestampToISOString } from './utils'
 
 export interface DownloadArtifact {
@@ -92,13 +93,13 @@ export function getFileNameWithFormat(format: string, ext: string, {
     const _createTime = unixTimestampToISOString(createTime)
     const _updateTime = unixTimestampToISOString(updateTime)
 
-    const rendered = format
-        .replaceAll('{title}', title)
-        .replaceAll('{date}', dateStr())
-        .replaceAll('{timestamp}', timestamp())
-        .replaceAll('{chat_id}', chatId)
-        .replaceAll('{create_time}', _createTime)
-        .replaceAll('{update_time}', _updateTime)
-        .concat(`.${ext}`)
+    const rendered = fillTemplate(format, {
+        title,
+        date: dateStr(),
+        timestamp: timestamp(),
+        chat_id: chatId,
+        create_time: _createTime,
+        update_time: _updateTime,
+    }).concat(`.${ext}`)
     return sanitize(rendered, { replacement: '_' }).replace(/\s+/g, '_') || `DeepSeek.${ext}`
 }

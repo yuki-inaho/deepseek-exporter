@@ -8,7 +8,7 @@ import { buildZipFileName, downloadFile, getFileNameWithFormat, prepareDownload 
 import { formatDurationSeconds } from '../utils/duration'
 import { fromMarkdown, toMarkdown } from '../utils/markdown'
 import { ScriptStorage } from '../utils/storage'
-import { standardizeLineBreaks } from '../utils/text'
+import { fillTemplate, standardizeLineBreaks } from '../utils/text'
 import { dateStr, timestamp, unixTimestampToISOString } from '../utils/utils'
 import type { ApiConversationWithId, ConversationNodeMessage, ConversationResult, ThinkingContent } from '../api'
 import type { ExportMeta } from '../ui/SettingContext'
@@ -81,15 +81,16 @@ export function conversationToMarkdown(conversation: ConversationResult, metaLis
     const _metaList = metaList
         ?.filter(x => !!x.name)
         .map(({ name, value }) => {
-            const val = value
-                .replaceAll('{title}', title)
-                .replaceAll('{date}', dateStr())
-                .replaceAll('{timestamp}', timestamp())
-                .replaceAll('{source}', source)
-                .replaceAll('{model}', model)
-                .replaceAll('{model_name}', modelSlug)
-                .replaceAll('{create_time}', unixTimestampToISOString(createTime))
-                .replaceAll('{update_time}', unixTimestampToISOString(updateTime))
+            const val = fillTemplate(value, {
+                title,
+                date: dateStr(),
+                timestamp: timestamp(),
+                source,
+                model,
+                model_name: modelSlug,
+                create_time: unixTimestampToISOString(createTime),
+                update_time: unixTimestampToISOString(updateTime),
+            })
 
             return `${quoteYamlScalar(name)}: ${quoteYamlScalar(val)}`
         })

@@ -6557,6 +6557,14 @@ ${items}
 			return sanitize(output, "");
 		};
 	}))(), 1);
+	function standardizeLineBreaks(text) {
+		return text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+	}
+	var PLACEHOLDER_PATTERN = /\{([a-z_]+)\}/g;
+	var TEMPLATE_PATTERN = /\{\{([a-z_]+)\}\}/g;
+	function fillTemplate(template, values, { doubleBraces = false } = {}) {
+		return template.replace(doubleBraces ? TEMPLATE_PATTERN : PLACEHOLDER_PATTERN, (match, name) => values[name] ?? match);
+	}
 	function noop() {}
 	function nonNullable(x) {
 		return x != null;
@@ -6684,7 +6692,14 @@ ${items}
 	function getFileNameWithFormat(format, ext, { title = getPageTitle(), chatId = "", createTime = Math.floor(Date.now() / 1e3), updateTime = Math.floor(Date.now() / 1e3) } = {}) {
 		const _createTime = unixTimestampToISOString(createTime);
 		const _updateTime = unixTimestampToISOString(updateTime);
-		const rendered = format.replaceAll("{title}", title).replaceAll("{date}", dateStr()).replaceAll("{timestamp}", timestamp()).replaceAll("{chat_id}", chatId).replaceAll("{create_time}", _createTime).replaceAll("{update_time}", _updateTime).concat(`.${ext}`);
+		const rendered = fillTemplate(format, {
+			title,
+			date: dateStr(),
+			timestamp: timestamp(),
+			chat_id: chatId,
+			create_time: _createTime,
+			update_time: _updateTime
+		}).concat(`.${ext}`);
 		return (0, import_sanitize_filename.default)(rendered, { replacement: "_" }).replace(/\s+/g, "_") || `DeepSeek.${ext}`;
 	}
 	function formatDurationSeconds(seconds) {
@@ -17443,9 +17458,6 @@ ${items}
 		}
 		return transform(tree, 0, void 0)[0];
 	}
-	function standardizeLineBreaks(text) {
-		return text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-	}
 	async function exportToHtml(fileNameFormat, metaList) {
 		if (!checkIfConversationStarted()) {
 			alert(i18n_default.t("Please start a conversation first"));
@@ -17564,7 +17576,16 @@ ${items}
 		const lang = document.documentElement.lang || "en";
 		const theme = getColorScheme();
 		const _metaList = metaList?.filter((x) => !!x.name).map(({ name, value }) => {
-			return [name, value.replaceAll("{title}", title).replaceAll("{date}", date).replaceAll("{timestamp}", timestamp()).replaceAll("{source}", source).replaceAll("{model}", model).replaceAll("{model_name}", modelSlug).replaceAll("{create_time}", unixTimestampToISOString(createTime)).replaceAll("{update_time}", unixTimestampToISOString(updateTime))];
+			return [name, fillTemplate(value, {
+				title,
+				date,
+				timestamp: timestamp(),
+				source,
+				model,
+				model_name: modelSlug,
+				create_time: unixTimestampToISOString(createTime),
+				update_time: unixTimestampToISOString(updateTime)
+			})];
 		}) ?? [];
 		const detailsHtml = _metaList.length > 0 ? `<details>
     <summary>Metadata</summary>
@@ -17572,7 +17593,17 @@ ${items}
         ${_metaList.map(([key, value]) => `<div class="metadata_item"><div>${escapeHtml(key)}</div><div>${escapeHtml(value)}</div></div>`).join("\n")}
     </div>
 </details>` : "";
-		return template_default.replaceAll("{{title}}", () => escapeHtml(title)).replaceAll("{{date}}", () => escapeHtml(date)).replaceAll("{{time}}", () => escapeHtml(time)).replaceAll("{{source}}", () => escapeHtml(source)).replaceAll("{{lang}}", () => escapeHtml(lang)).replaceAll("{{theme}}", () => escapeHtml(theme)).replaceAll("{{avatar}}", () => escapeCssString(safeImageUrl(avatar))).replaceAll("{{details}}", () => detailsHtml).replaceAll("{{content}}", () => conversationHtml);
+		return fillTemplate(template_default, {
+			title: escapeHtml(title),
+			date: escapeHtml(date),
+			time: escapeHtml(time),
+			source: escapeHtml(source),
+			lang: escapeHtml(lang),
+			theme: escapeHtml(theme),
+			avatar: escapeCssString(safeImageUrl(avatar)),
+			details: detailsHtml,
+			content: conversationHtml
+		}, { doubleBraces: true });
 	}
 	function transformAuthor$2(author) {
 		switch (author.role) {
@@ -17986,7 +18017,16 @@ ${items}
 		const { id, title, model, modelSlug, createTime, updateTime, conversationNodes } = conversation;
 		const source = `${baseUrl}/a/chat/s/${encodeURIComponent(id)}`;
 		const _metaList = metaList?.filter((x) => !!x.name).map(({ name, value }) => {
-			const val = value.replaceAll("{title}", title).replaceAll("{date}", dateStr()).replaceAll("{timestamp}", timestamp()).replaceAll("{source}", source).replaceAll("{model}", model).replaceAll("{model_name}", modelSlug).replaceAll("{create_time}", unixTimestampToISOString(createTime)).replaceAll("{update_time}", unixTimestampToISOString(updateTime));
+			const val = fillTemplate(value, {
+				title,
+				date: dateStr(),
+				timestamp: timestamp(),
+				source,
+				model,
+				model_name: modelSlug,
+				create_time: unixTimestampToISOString(createTime),
+				update_time: unixTimestampToISOString(updateTime)
+			});
 			return `${quoteYamlScalar(name)}: ${quoteYamlScalar(val)}`;
 		}) ?? [];
 		const frontMatter = _metaList.length > 0 ? `---\n${_metaList.join("\n")}\n---\n\n` : "";

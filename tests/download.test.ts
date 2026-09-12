@@ -1,10 +1,39 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { downloadFile, prepareDownload, triggerBrowserDownload } from '../src/utils/download'
+import { downloadFile, getFileNameWithFormat, prepareDownload, triggerBrowserDownload } from '../src/utils/download'
 
 afterEach(() => {
     vi.restoreAllMocks()
     vi.unstubAllGlobals()
     vi.useRealTimers()
+})
+
+describe('filename templating', () => {
+    it('inserts titles containing $ replacement patterns verbatim', () => {
+        const name = getFileNameWithFormat('{title}', 'md', {
+            title: 'a$&b$`c$\'d$$e',
+            chatId: 'chat-1',
+        })
+
+        expect(name).toBe('a$&b$`c$\'d$$e.md')
+    })
+
+    it('does not re-interpret inserted values that look like other placeholders', () => {
+        const name = getFileNameWithFormat('{title}', 'md', {
+            title: 'keep {date} and {chat_id} literal',
+            chatId: 'chat-1',
+        })
+
+        expect(name).toBe('keep_{date}_and_{chat_id}_literal.md')
+    })
+
+    it('keeps unknown placeholders and appends the extension', () => {
+        const name = getFileNameWithFormat('{unknown}-{title}', 'html', {
+            title: 'hello',
+            chatId: '',
+        })
+
+        expect(name).toBe('{unknown}-hello.html')
+    })
 })
 
 describe('browser-native downloads', () => {
