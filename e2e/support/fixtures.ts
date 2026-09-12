@@ -46,7 +46,9 @@ export const test = base.extend<ExporterFixtures>({
         await use({ chatUrl: CHAT_URL })
     },
 
-    lastDownload: async (_, use) => {
+    // Playwright requires fixture functions to use an object destructuring pattern
+    // eslint-disable-next-line no-empty-pattern
+    lastDownload: async ({}, use) => {
         await use({ name: '', path: '' })
     },
 })
