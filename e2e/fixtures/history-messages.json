@@ -1,0 +1,85 @@
+{
+  "code": 0,
+  "msg": "ok",
+  "data": {
+    "biz_code": 0,
+    "biz_data": {
+      "chat_session": {
+        "id": "xss-test-0001",
+        "title": "<img src=x onerror=\"window.__xssTitle=1\"> $& $' $` $$ <script>window.__xssTitle2=1</script>",
+        "inserted_at": 1700000000,
+        "updated_at": 1700000100,
+        "model_type": "deepseek-chat",
+        "current_message_id": "m4"
+      },
+      "chat_messages": [
+        {
+          "message_id": "m1",
+          "role": "USER",
+          "inserted_at": 1700000000,
+          "fragments": [
+            {
+              "type": "REQUEST",
+              "content": "hello <b>world</b> $& $' and a quote \" onmouseover=1"
+            }
+          ]
+        },
+        {
+          "message_id": "m2",
+          "parent_id": "m1",
+          "role": "ASSISTANT",
+          "inserted_at": 1700000010,
+          "model": "deepseek-chat",
+          "fragments": [
+            {
+              "type": "RESPONSE",
+              "content": "Answer with citation [citation:0] and a link [evil](javascript:window.__xssLink=1) plus raw <img src=x onerror=\"window.__xssImg=1\"> and code:\n\n```html\n<script>window.__xssCode=1</script>\n```\n safe [link](https://example.com/safe) and image ![ok](https://example.com/pic.png)"
+            },
+            {
+              "type": "SEARCH",
+              "results": [
+                {
+                  "title": "Evil <b>Source</b>",
+                  "url": "javascript:window.__xssSource=1",
+                  "snippet": "x",
+                  "cite_index": 0
+                },
+                {
+                  "title": "Data URI",
+                  "url": "data:text/html,<script>window.__xssData=1</script>",
+                  "snippet": "y",
+                  "cite_index": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "message_id": "m3",
+          "parent_id": "m2",
+          "role": "USER",
+          "inserted_at": 1700000020,
+          "fragments": [
+            {
+              "type": "REQUEST",
+              "content": "second question with <svg onload=window.__xssSvg=1>"
+            }
+          ]
+        },
+        {
+          "message_id": "m4",
+          "parent_id": "m3",
+          "role": "ASSISTANT",
+          "inserted_at": 1700000030,
+          "model": "deepseek-chat",
+          "fragments": [
+            {
+              "type": "RESPONSE",
+              "content": "final answer with an image ![img](data:text/html,<script>window.__xssMd=1</script>) done"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
